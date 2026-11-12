@@ -1,0 +1,7 @@
+# 4-stage: taken branch resolved in EX -> flush of wrong-path fetches
+load tests/viz/branch_demo.asm
+pipeline 4
+color off
+unicode off
+run 0
+exit

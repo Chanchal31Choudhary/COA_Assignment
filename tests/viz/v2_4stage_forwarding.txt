@@ -1,0 +1,8 @@
+# 4-stage, forwarding ON: the same RAW chain resolved by forwarding
+load tests/t9_hazards.asm
+pipeline 4
+color off
+unicode off
+run 0
+status
+exit

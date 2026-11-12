@@ -1,0 +1,7 @@
+# 6-stage: taken branch resolved in EX -> deeper flush
+load tests/viz/branch_demo.asm
+pipeline 6
+color off
+unicode off
+run 0
+exit

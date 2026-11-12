@@ -1,0 +1,292 @@
+risc201> load tests/viz/branch_demo.asm
+Loaded 'tests/viz/branch_demo.asm': 4 words, 1 symbols. Machine reset.
+risc201> pipeline
+
+Select Pipeline Architecture:
+
+  1. 4-Stage Pipeline
+  2. 6-Stage Pipeline
+
+choice> 7
+Invalid choice '7'. Please enter 1 or 2.
+
+Select Pipeline Architecture:
+
+  1. 4-Stage Pipeline
+  2. 6-Stage Pipeline
+
+choice> abc
+Invalid choice 'abc'. Please enter 1 or 2.
+
+Select Pipeline Architecture:
+
+  1. 4-Stage Pipeline
+  2. 6-Stage Pipeline
+
+choice> 2
+
+6-stage pipeline selected. Type 'help' for commands: next prev run pause reset status switch exit
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding ON   branch_demo.asm
+ CYCLE 0  (latest)   PAUSED   next fetch PC=0
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ...   MEM    ...    WB    
+   bubble       bubble       bubble       bubble       bubble       bubble  
+   (fill)       (fill)       (fill)       (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(6)> color off
+colour off
+pipeline(6)> unicode off
+unicode box/arrow glyphs off
+pipeline(6)> pause
+The animation is not running (already paused). Use 'run' to animate or 'next' to step.
+pipeline(6)> next 3
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding ON   branch_demo.asm
+ CYCLE 3  (latest)   PAUSED   next fetch PC=3
+======================================================================================
+     IF    ==>    ID    ==>    RF    ...    EX    ...   MEM    ...    WB    
+   #3 @2        #2 @1        #1 @0        bubble       bubble       bubble  
+    BNZ          ADDI         LDI         (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #3 [2] BNZ R1, 1         | fetched this cycle
+  ID   | decode (micro-ROM)                 | #2 [1] ADDI R1, -1       | <- moved from IF
+  RF   | register read + RAW check          | #1 [0] LDI R1, 2         | <- moved from ID
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=3  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..3)   * = stalled in stage   X = flushed
+ instruction               1    2    3    
+ -----------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   RF   
+ #2 [1] ADDI R1, -1             IF   ID   
+ #3 [2] BNZ R1, 1                    IF   
+pipeline(6)> prev 10
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding ON   branch_demo.asm
+ CYCLE 0  (history 0/3)   PAUSED   next fetch PC=0
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ...   MEM    ...    WB    
+   bubble       bubble       bubble       bubble       bubble       bubble  
+   (fill)       (fill)       (fill)       (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(6)> prev
+Already at cycle 0 (start of the program).
+pipeline(6)> switch
+Not safe to switch yet: 3 instruction(s) are in flight in the 6-stage pipeline and cannot be remapped onto a different set of stages.
+Finish the program, 'reset', or type 'switch yes' to restart from cycle 0 in the 4-stage pipeline.
+pipeline(6)> switch yes
+Switched to the 4-stage pipeline; restarted at cycle 0 (same program).
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 0  (latest)   PAUSED   next fetch PC=0
+======================================================================================
+       IF      ...      ID      ...      EX      ...      WB      
+     bubble           bubble           bubble           bubble    
+     (fill)           (fill)           (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(4)> next 2
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 2  (latest)   PAUSED   next fetch PC=2
+======================================================================================
+       IF      ==>      ID      ...      EX      ...      WB      
+     #2 @1            #1 @0            bubble           bubble    
+      ADDI             LDI             (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #2 [1] ADDI R1, -1       | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #1 [0] LDI R1, 2         | <- moved from IF
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=2  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..2)   * = stalled in stage   X = flushed
+ instruction               1    2    
+ ------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   
+ #2 [1] ADDI R1, -1             IF   
+pipeline(4)> status
+ PIPELINE STATUS
+  configuration : 4-stage (IF ID EX WB), forwarding on, horizontal microcode
+  program       : tests/viz/branch_demo.asm
+  state         : PAUSED
+  clock cycle   : 2  (latest)
+  stage contents:
+    IF  #2 [1] ADDI R1, -1
+    ID  #1 [0] LDI R1, 2
+    EX  -- bubble --  (bubble: pipeline filling (no instruction has reached this stage yet))
+    WB  -- bubble --  (bubble: pipeline filling (no instruction has reached this stage yet))
+  totals        : retired=0  data-stall cycles=0  forwards=0  flushed=0  control bubbles=0  branches taken=0
+pipeline(4)> reset
+Pipeline restarted at cycle 0.
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 0  (latest)   PAUSED   next fetch PC=0
+======================================================================================
+       IF      ...      ID      ...      EX      ...      WB      
+     bubble           bubble           bubble           bubble    
+     (fill)           (fill)           (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(4)> run 0 3
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 1  (latest)   RUNNING   next fetch PC=1
+======================================================================================
+       IF      ...      ID      ...      EX      ...      WB      
+     #1 @0            bubble           bubble           bubble    
+      LDI             (fill)           (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #1 [0] LDI R1, 2         | fetched this cycle
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=1  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..1)   * = stalled in stage   X = flushed
+ instruction               1    
+ -------------------------------
+ #1 [0] LDI R1, 2          IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 2  (latest)   RUNNING   next fetch PC=2
+======================================================================================
+       IF      ==>      ID      ...      EX      ...      WB      
+     #2 @1            #1 @0            bubble           bubble    
+      ADDI             LDI             (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #2 [1] ADDI R1, -1       | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #1 [0] LDI R1, 2         | <- moved from IF
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=2  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..2)   * = stalled in stage   X = flushed
+ instruction               1    2    
+ ------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   
+ #2 [1] ADDI R1, -1             IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 3  (latest)   RUNNING   next fetch PC=3
+======================================================================================
+       IF      ==>      ID      ==>      EX      ...      WB      
+     #3 @2            #2 @1            #1 @0            bubble    
+      BNZ              ADDI             LDI             (fill)    
+                     FORWARD                                      
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #3 [2] BNZ R1, 1         | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #2 [1] ADDI R1, -1       | <- moved from IF; FORWARD R1 from #1 (EX result)
+  EX   | ALU + memory access                | #1 [0] LDI R1, 2         | <- moved from ID
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+   FORWARDING   R1: #1 [0] LDI R1, 2 [EX result] <- bypassed to #2 [1] ADDI R1, -1 in ID  (stall avoided)
+
+ cycles=3  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..3)   * = stalled in stage   X = flushed
+ instruction               1    2    3    
+ -----------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   
+ #2 [1] ADDI R1, -1             IF   ID   
+ #3 [2] BNZ R1, 1                    IF   
+-- paused at cycle 3 (type 'run' to resume) --
+pipeline(4)> pause
+The animation is not running (already paused). Use 'run' to animate or 'next' to step.
+pipeline(4)> bogus
+unknown pipeline command 'bogus' (type 'help')
+pipeline(4)> exit
+Leaving pipeline visualizer (main CLI state unchanged).

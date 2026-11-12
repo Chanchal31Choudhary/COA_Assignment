@@ -1,0 +1,21 @@
+# menu validation, next/prev/pause/reset/status/switch safety, exit
+load tests/viz/branch_demo.asm
+pipeline
+7
+abc
+2
+color off
+unicode off
+pause
+next 3
+prev 10
+prev
+switch
+switch yes
+next 2
+status
+reset
+run 0 3
+pause
+bogus
+exit

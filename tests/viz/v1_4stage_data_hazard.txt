@@ -1,0 +1,11 @@
+# 4-stage, forwarding OFF: RAW chain -> data-hazard stalls and bubbles
+load tests/t9_hazards.asm
+fwd off
+pipeline 4
+color off
+unicode off
+run 0
+prev 3
+status
+switch
+exit

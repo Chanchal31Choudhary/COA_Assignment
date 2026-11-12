@@ -1,0 +1,9 @@
+# 6-stage, forwarding ON: forwarding plus the LOAD -> use stall
+load tests/t9_hazards.asm
+pipeline 6
+color off
+unicode off
+run 0
+prev 4
+status
+exit

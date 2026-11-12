@@ -1,0 +1,8 @@
+# 6-stage, forwarding OFF: longer RAW stalls (two producers in flight)
+load tests/t9_hazards.asm
+fwd off
+pipeline 6
+color off
+unicode off
+run 0
+exit

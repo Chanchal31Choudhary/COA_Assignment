@@ -1,0 +1,812 @@
+risc201> load tests/t9_hazards.asm
+Loaded 'tests/t9_hazards.asm': 8 words, 0 symbols. Machine reset.
+risc201> fwd off
+forwarding off (machine reset)
+risc201> pipeline 6
+
+6-stage pipeline selected. Type 'help' for commands: next prev run pause reset status switch exit
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 0  (latest)   PAUSED   next fetch PC=0
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ...   MEM    ...    WB    
+   bubble       bubble       bubble       bubble       bubble       bubble  
+   (fill)       (fill)       (fill)       (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(6)> color off
+colour off
+pipeline(6)> unicode off
+unicode box/arrow glyphs off
+pipeline(6)> run 0
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 1  (latest)   RUNNING   next fetch PC=1
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ...   MEM    ...    WB    
+   #1 @0        bubble       bubble       bubble       bubble       bubble  
+    LDI         (fill)       (fill)       (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #1 [0] LDI R0, 5         | fetched this cycle
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=1  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..1)   * = stalled in stage   X = flushed
+ instruction               1    
+ -------------------------------
+ #1 [0] LDI R0, 5          IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 2  (latest)   RUNNING   next fetch PC=2
+======================================================================================
+     IF    ==>    ID    ...    RF    ...    EX    ...   MEM    ...    WB    
+   #2 @1        #1 @0        bubble       bubble       bubble       bubble  
+    ADD          LDI         (fill)       (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #2 [1] ADD R1, R0, R0    | fetched this cycle
+  ID   | decode (micro-ROM)                 | #1 [0] LDI R0, 5         | <- moved from IF
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=2  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..2)   * = stalled in stage   X = flushed
+ instruction               1    2    
+ ------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   
+ #2 [1] ADD R1, R0, R0          IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 3  (latest)   RUNNING   next fetch PC=3
+======================================================================================
+     IF    ==>    ID    ==>    RF    ...    EX    ...   MEM    ...    WB    
+   #3 @2        #2 @1        #1 @0        bubble       bubble       bubble  
+    ADD          ADD          LDI         (fill)       (fill)       (fill)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #3 [2] ADD R2, R1, R0    | fetched this cycle
+  ID   | decode (micro-ROM)                 | #2 [1] ADD R1, R0, R0    | <- moved from IF
+  RF   | register read + RAW check          | #1 [0] LDI R0, 5         | <- moved from ID
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=3  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..3)   * = stalled in stage   X = flushed
+ instruction               1    2    3    
+ -----------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   
+ #2 [1] ADD R1, R0, R0          IF   ID   
+ #3 [2] ADD R2, R1, R0               IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 4  (latest)   RUNNING   next fetch PC=4
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #4 @3        #3 @2        #2 @1        #1 @0        bubble       bubble  
+    ADD          ADD          ADD          LDI         (fill)       (fill)  
+                             STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #4 [3] ADD R3, R2, R1    | fetched this cycle
+  ID   | decode (micro-ROM)                 | #3 [2] ADD R2, R1, R0    | <- moved from IF
+  RF   | register read + RAW check          | #2 [1] ADD R1, R0, R0    | <- moved from ID; STALL RAW R0 (waits for #1 in EX)
+  EX   | ALU / branch resolve               | #1 [0] LDI R0, 5         | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R0: #2 [1] ADD R1, R0, R0 in RF needs a value from #1 [0] LDI R0, 5 (now in EX)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=4  retired=0  CPI=0.00  data-stall cycles=1  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..4)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    
+ ----------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  
+ #3 [2] ADD R2, R1, R0               IF   ID   
+ #4 [3] ADD R3, R2, R1                    IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 5  (latest)   RUNNING   next fetch PC=4
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ==>   MEM    ...    WB    
+   #4 @3        #3 @2        #2 @1        bubble       #1 @0        bubble  
+    ADD          ADD          ADD        (stall)        LDI         (fill)  
+    held         held        STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #4 [3] ADD R3, R2, R1    | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #3 [2] ADD R2, R1, R0    | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #2 [1] ADD R1, R0, R0    | STALL RAW R0 (waits for #1 in MEM)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #1 [0] LDI R0, 5         | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R0: #2 [1] ADD R1, R0, R0 in RF needs a value from #1 [0] LDI R0, 5 (now in MEM)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=5  retired=0  CPI=0.00  data-stall cycles=2  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..5)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    
+ ---------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   
+ #4 [3] ADD R3, R2, R1                    IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 6  (latest)   RUNNING   next fetch PC=4
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ...   MEM    ==>    WB    
+   #4 @3        #3 @2        #2 @1        bubble       bubble       #1 @0   
+    ADD          ADD          ADD        (stall)       (idle)        LDI    
+    held         held         held                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #4 [3] ADD R3, R2, R1    | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #3 [2] ADD R2, R1, R0    | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #2 [1] ADD R1, R0, R0    | stayed here: it stalled last cycle (re-checking operands now)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | #1 [0] LDI R0, 5         | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=6  retired=1  CPI=6.00  data-stall cycles=2  flushed=0  control bubbles=0  branches taken=0
+ R0=0005* R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..6)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    
+ --------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB   
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 7  (latest)   RUNNING   next fetch PC=5
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #5 @4        #4 @3        #3 @2        #2 @1        bubble       bubble  
+   STORE         ADD          ADD          ADD         (idle)       (idle)  
+                             STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #5 [4] STORE R3, 100     | fetched this cycle
+  ID   | decode (micro-ROM)                 | #4 [3] ADD R3, R2, R1    | <- moved from IF
+  RF   | register read + RAW check          | #3 [2] ADD R2, R1, R0    | <- moved from ID; STALL RAW R1 (waits for #2 in EX)
+  EX   | ALU / branch resolve               | #2 [1] ADD R1, R0, R0    | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R1: #3 [2] ADD R2, R1, R0 in RF needs a value from #2 [1] ADD R1, R0, R0 (now in EX)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=7  retired=1  CPI=7.00  data-stall cycles=3  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..7)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    
+ -------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB        
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   
+ #5 [4] STORE R3, 100                                    IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 8  (latest)   RUNNING   next fetch PC=5
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ==>   MEM    ...    WB    
+   #5 @4        #4 @3        #3 @2        bubble       #2 @1        bubble  
+   STORE         ADD          ADD        (stall)        ADD         (idle)  
+    held         held        STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #5 [4] STORE R3, 100     | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #4 [3] ADD R3, R2, R1    | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #3 [2] ADD R2, R1, R0    | STALL RAW R1 (waits for #2 in MEM)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #2 [1] ADD R1, R0, R0    | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R1: #3 [2] ADD R2, R1, R0 in RF needs a value from #2 [1] ADD R1, R0, R0 (now in MEM)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=8  retired=1  CPI=8.00  data-stall cycles=4  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..8)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    
+ ------------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB             
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   MEM  
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  RF*  
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   ID   
+ #5 [4] STORE R3, 100                                    IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 9  (latest)   RUNNING   next fetch PC=5
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ...   MEM    ==>    WB    
+   #5 @4        #4 @3        #3 @2        bubble       bubble       #2 @1   
+   STORE         ADD          ADD        (stall)       (idle)        ADD    
+    held         held         held                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #5 [4] STORE R3, 100     | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #4 [3] ADD R3, R2, R1    | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #3 [2] ADD R2, R1, R0    | stayed here: it stalled last cycle (re-checking operands now)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | #2 [1] ADD R1, R0, R0    | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=9  retired=2  CPI=4.50  data-stall cycles=4  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A* R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..9)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    
+ -----------------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB                  
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   MEM  WB   
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  RF*  RF   
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   ID   ID   
+ #5 [4] STORE R3, 100                                    IF   IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 10  (latest)   RUNNING   next fetch PC=6
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #6 @5        #5 @4        #4 @3        #3 @2        bubble       bubble  
+    LOAD        STORE         ADD          ADD         (idle)       (idle)  
+                             STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #6 [5] LOAD R4, 100      | fetched this cycle
+  ID   | decode (micro-ROM)                 | #5 [4] STORE R3, 100     | <- moved from IF
+  RF   | register read + RAW check          | #4 [3] ADD R3, R2, R1    | <- moved from ID; STALL RAW R2 (waits for #3 in EX)
+  EX   | ALU / branch resolve               | #3 [2] ADD R2, R1, R0    | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R2: #4 [3] ADD R3, R2, R1 in RF needs a value from #3 [2] ADD R2, R1, R0 (now in EX)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=10  retired=2  CPI=5.00  data-stall cycles=5  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..10)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    10   
+ ----------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB                       
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   MEM  WB        
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  RF*  RF   EX   
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   ID   ID   RF*  
+ #5 [4] STORE R3, 100                                    IF   IF   IF   ID   
+ #6 [5] LOAD R4, 100                                                    IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 11  (latest)   RUNNING   next fetch PC=6
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ==>   MEM    ...    WB    
+   #6 @5        #5 @4        #4 @3        bubble       #3 @2        bubble  
+    LOAD        STORE         ADD        (stall)        ADD         (idle)  
+    held         held        STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #6 [5] LOAD R4, 100      | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #5 [4] STORE R3, 100     | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #4 [3] ADD R3, R2, R1    | STALL RAW R2 (waits for #3 in MEM)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #3 [2] ADD R2, R1, R0    | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R2: #4 [3] ADD R3, R2, R1 in RF needs a value from #3 [2] ADD R2, R1, R0 (now in MEM)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=11  retired=2  CPI=5.50  data-stall cycles=6  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..11)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    10   11   
+ ---------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB                            
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   MEM  WB             
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   ID   ID   RF*  RF*  
+ #5 [4] STORE R3, 100                                    IF   IF   IF   ID   ID   
+ #6 [5] LOAD R4, 100                                                    IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 12  (latest)   RUNNING   next fetch PC=6
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ...   MEM    ==>    WB    
+   #6 @5        #5 @4        #4 @3        bubble       bubble       #3 @2   
+    LOAD        STORE         ADD        (stall)       (idle)        ADD    
+    held         held         held                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #6 [5] LOAD R4, 100      | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #5 [4] STORE R3, 100     | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #4 [3] ADD R3, R2, R1    | stayed here: it stalled last cycle (re-checking operands now)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | #3 [2] ADD R2, R1, R0    | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=12  retired=3  CPI=4.00  data-stall cycles=6  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F* R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..12)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    10   11   12   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          IF   ID   RF   EX   MEM  WB                                 
+ #2 [1] ADD R1, R0, R0          IF   ID   RF*  RF*  RF   EX   MEM  WB                  
+ #3 [2] ADD R2, R1, R0               IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB   
+ #4 [3] ADD R3, R2, R1                    IF   IF   IF   ID   ID   ID   RF*  RF*  RF   
+ #5 [4] STORE R3, 100                                    IF   IF   IF   ID   ID   ID   
+ #6 [5] LOAD R4, 100                                                    IF   IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 13  (latest)   RUNNING   next fetch PC=7
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #7 @6        #6 @5        #5 @4        #4 @3        bubble       bubble  
+    ADD          LOAD        STORE         ADD         (idle)       (idle)  
+                             STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #7 [6] ADD R5, R4, R4    | fetched this cycle
+  ID   | decode (micro-ROM)                 | #6 [5] LOAD R4, 100      | <- moved from IF
+  RF   | register read + RAW check          | #5 [4] STORE R3, 100     | <- moved from ID; STALL RAW R3 (waits for #4 in EX)
+  EX   | ALU / branch resolve               | #4 [3] ADD R3, R2, R1    | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R3: #5 [4] STORE R3, 100 in RF needs a value from #4 [3] ADD R3, R2, R1 (now in EX)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=13  retired=3  CPI=4.33  data-stall cycles=7  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 2..13)   * = stalled in stage   X = flushed
+ instruction               2    3    4    5    6    7    8    9    10   11   12   13   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          ID   RF   EX   MEM  WB                                      
+ #2 [1] ADD R1, R0, R0     IF   ID   RF*  RF*  RF   EX   MEM  WB                       
+ #3 [2] ADD R2, R1, R0          IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB        
+ #4 [3] ADD R3, R2, R1               IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   
+ #5 [4] STORE R3, 100                               IF   IF   IF   ID   ID   ID   RF*  
+ #6 [5] LOAD R4, 100                                               IF   IF   IF   ID   
+ #7 [6] ADD R5, R4, R4                                                            IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 14  (latest)   RUNNING   next fetch PC=7
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ==>   MEM    ...    WB    
+   #7 @6        #6 @5        #5 @4        bubble       #4 @3        bubble  
+    ADD          LOAD        STORE       (stall)        ADD         (idle)  
+    held         held        STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #7 [6] ADD R5, R4, R4    | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #6 [5] LOAD R4, 100      | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #5 [4] STORE R3, 100     | STALL RAW R3 (waits for #4 in MEM)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #4 [3] ADD R3, R2, R1    | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R3: #5 [4] STORE R3, 100 in RF needs a value from #4 [3] ADD R3, R2, R1 (now in MEM)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=14  retired=3  CPI=4.67  data-stall cycles=8  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 3..14)   * = stalled in stage   X = flushed
+ instruction               3    4    5    6    7    8    9    10   11   12   13   14   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          RF   EX   MEM  WB                                           
+ #2 [1] ADD R1, R0, R0     ID   RF*  RF*  RF   EX   MEM  WB                            
+ #3 [2] ADD R2, R1, R0     IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB             
+ #4 [3] ADD R3, R2, R1          IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  
+ #5 [4] STORE R3, 100                          IF   IF   IF   ID   ID   ID   RF*  RF*  
+ #6 [5] LOAD R4, 100                                          IF   IF   IF   ID   ID   
+ #7 [6] ADD R5, R4, R4                                                       IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 15  (latest)   RUNNING   next fetch PC=7
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ...   MEM    ==>    WB    
+   #7 @6        #6 @5        #5 @4        bubble       bubble       #4 @3   
+    ADD          LOAD        STORE       (stall)       (idle)        ADD    
+    held         held         held                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #7 [6] ADD R5, R4, R4    | blocked: an instruction ahead is stalled
+  ID   | decode (micro-ROM)                 | #6 [5] LOAD R4, 100      | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #5 [4] STORE R3, 100     | stayed here: it stalled last cycle (re-checking operands now)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | #4 [3] ADD R3, R2, R1    | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=15  retired=4  CPI=3.75  data-stall cycles=8  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019* R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 4..15)   * = stalled in stage   X = flushed
+ instruction               4    5    6    7    8    9    10   11   12   13   14   15   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          EX   MEM  WB                                                
+ #2 [1] ADD R1, R0, R0     RF*  RF*  RF   EX   MEM  WB                                 
+ #3 [2] ADD R2, R1, R0     ID   ID   ID   RF*  RF*  RF   EX   MEM  WB                  
+ #4 [3] ADD R3, R2, R1     IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB   
+ #5 [4] STORE R3, 100                     IF   IF   IF   ID   ID   ID   RF*  RF*  RF   
+ #6 [5] LOAD R4, 100                                     IF   IF   IF   ID   ID   ID   
+ #7 [6] ADD R5, R4, R4                                                  IF   IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 16  (latest)   RUNNING   next fetch PC=8
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #8 @7        #7 @6        #6 @5        #5 @4        bubble       bubble  
+    HALT         ADD          LOAD        STORE        (idle)       (idle)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #8 [7] HALT              | fetched this cycle
+  ID   | decode (micro-ROM)                 | #7 [6] ADD R5, R4, R4    | <- moved from IF
+  RF   | register read + RAW check          | #6 [5] LOAD R4, 100      | <- moved from ID
+  EX   | ALU / branch resolve               | #5 [4] STORE R3, 100     | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=16  retired=4  CPI=4.00  data-stall cycles=8  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 5..16)   * = stalled in stage   X = flushed
+ instruction               5    6    7    8    9    10   11   12   13   14   15   16   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          MEM  WB                                                     
+ #2 [1] ADD R1, R0, R0     RF*  RF   EX   MEM  WB                                      
+ #3 [2] ADD R2, R1, R0     ID   ID   RF*  RF*  RF   EX   MEM  WB                       
+ #4 [3] ADD R3, R2, R1     IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB        
+ #5 [4] STORE R3, 100                IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   
+ #6 [5] LOAD R4, 100                                IF   IF   IF   ID   ID   ID   RF   
+ #7 [6] ADD R5, R4, R4                                             IF   IF   IF   ID   
+ #8 [7] HALT                                                                      IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 17  (latest)   RUNNING   next fetch PC=9
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ==>   MEM    ...    WB    
+   #9 @8        #8 @7        #7 @6        #6 @5        #5 @4        bubble  
+  badfetch       HALT         ADD          LOAD        STORE        (idle)  
+                             STALL                                          
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #9 [8] <bad fetch>       | fetched this cycle; fetched from a non-code address (faults if it reaches EX)
+  ID   | decode (micro-ROM)                 | #8 [7] HALT              | <- moved from IF
+  RF   | register read + RAW check          | #7 [6] ADD R5, R4, R4    | <- moved from ID; STALL RAW R4 (waits for #6 in EX)
+  EX   | ALU / branch resolve               | #6 [5] LOAD R4, 100      | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #5 [4] STORE R3, 100     | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R4: #7 [6] ADD R5, R4, R4 in RF needs a value from #6 [5] LOAD R4, 100 (now in EX)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=17  retired=4  CPI=4.25  data-stall cycles=9  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 6..17)   * = stalled in stage   X = flushed
+ instruction               6    7    8    9    10   11   12   13   14   15   16   17   
+ --------------------------------------------------------------------------------------
+ #1 [0] LDI R0, 5          WB                                                          
+ #2 [1] ADD R1, R0, R0     RF   EX   MEM  WB                                           
+ #3 [2] ADD R2, R1, R0     ID   RF*  RF*  RF   EX   MEM  WB                            
+ #4 [3] ADD R3, R2, R1     IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB             
+ #5 [4] STORE R3, 100           IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  
+ #6 [5] LOAD R4, 100                           IF   IF   IF   ID   ID   ID   RF   EX   
+ #7 [6] ADD R5, R4, R4                                        IF   IF   IF   ID   RF*  
+ #8 [7] HALT                                                                 IF   ID   
+ #9 [8] <bad fetch>                                                               IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 18  (latest)   RUNNING   next fetch PC=9
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ==>   MEM    ==>    WB    
+   #9 @8        #8 @7        #7 @6        bubble       #6 @5        #5 @4   
+  badfetch       HALT         ADD        (stall)        LOAD        STORE   
+    held         held        STALL                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #9 [8] <bad fetch>       | blocked: an instruction ahead is stalled; fetched from a non-code address (faults if it reaches EX)
+  ID   | decode (micro-ROM)                 | #8 [7] HALT              | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #7 [6] ADD R5, R4, R4    | STALL RAW R4 (waits for #6 in MEM)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #6 [5] LOAD R4, 100      | <- moved from EX
+  WB   | register write-back (retire)       | #5 [4] STORE R3, 100     | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+   DATA HAZARD  RAW on R4: #7 [6] ADD R5, R4, R4 in RF needs a value from #6 [5] LOAD R4, 100 (now in MEM)
+                -> STALL: forwarding is OFF: must wait until the producer writes back; a bubble enters EX
+
+ cycles=18  retired=5  CPI=3.60  data-stall cycles=10  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 7..18)   * = stalled in stage   X = flushed
+ instruction               7    8    9    10   11   12   13   14   15   16   17   18   
+ --------------------------------------------------------------------------------------
+ #2 [1] ADD R1, R0, R0     EX   MEM  WB                                                
+ #3 [2] ADD R2, R1, R0     RF*  RF*  RF   EX   MEM  WB                                 
+ #4 [3] ADD R3, R2, R1     ID   ID   ID   RF*  RF*  RF   EX   MEM  WB                  
+ #5 [4] STORE R3, 100      IF   IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB   
+ #6 [5] LOAD R4, 100                      IF   IF   IF   ID   ID   ID   RF   EX   MEM  
+ #7 [6] ADD R5, R4, R4                                   IF   IF   IF   ID   RF*  RF*  
+ #8 [7] HALT                                                            IF   ID   ID   
+ #9 [8] <bad fetch>                                                          IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 19  (latest)   RUNNING   next fetch PC=9
+======================================================================================
+     IF    -x-    ID    -x-    RF    -x-    EX    ...   MEM    ==>    WB    
+   #9 @8        #8 @7        #7 @6        bubble       bubble       #6 @5   
+  badfetch       HALT         ADD        (stall)       (idle)        LOAD   
+    held         held         held                                  RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #9 [8] <bad fetch>       | blocked: an instruction ahead is stalled; fetched from a non-code address (faults if it reaches EX)
+  ID   | decode (micro-ROM)                 | #8 [7] HALT              | blocked: an instruction ahead is stalled
+  RF   | register read + RAW check          | #7 [6] ADD R5, R4, R4    | stayed here: it stalled last cycle (re-checking operands now)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: inserted behind the data-hazard stall in RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | #6 [5] LOAD R4, 100      | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=19  retired=6  CPI=3.17  data-stall cycles=10  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0019* R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 8..19)   * = stalled in stage   X = flushed
+ instruction               8    9    10   11   12   13   14   15   16   17   18   19   
+ --------------------------------------------------------------------------------------
+ #2 [1] ADD R1, R0, R0     MEM  WB                                                     
+ #3 [2] ADD R2, R1, R0     RF*  RF   EX   MEM  WB                                      
+ #4 [3] ADD R3, R2, R1     ID   ID   RF*  RF*  RF   EX   MEM  WB                       
+ #5 [4] STORE R3, 100      IF   IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB        
+ #6 [5] LOAD R4, 100                 IF   IF   IF   ID   ID   ID   RF   EX   MEM  WB   
+ #7 [6] ADD R5, R4, R4                              IF   IF   IF   ID   RF*  RF*  RF   
+ #8 [7] HALT                                                       IF   ID   ID   ID   
+ #9 [8] <bad fetch>                                                     IF   IF   IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 20  (latest)   RUNNING   next fetch PC=10
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ...   MEM    ...    WB    
+   #10 @9       #9 @8        #8 @7        #7 @6        bubble       bubble  
+  badfetch     badfetch       HALT         ADD         (idle)       (idle)  
+                                                                            
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #10 [9] <bad fetch>      | fetched this cycle; fetched from a non-code address (faults if it reaches EX)
+  ID   | decode (micro-ROM)                 | #9 [8] <bad fetch>       | <- moved from IF; fetched from a non-code address (faults if it reaches EX)
+  RF   | register read + RAW check          | #8 [7] HALT              | <- moved from ID
+  EX   | ALU / branch resolve               | #7 [6] ADD R5, R4, R4    | <- moved from RF
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=20  retired=6  CPI=3.33  data-stall cycles=10  flushed=0  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0019  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 9..20)   * = stalled in stage   X = flushed
+ instruction               9    10   11   12   13   14   15   16   17   18   19   20   
+ --------------------------------------------------------------------------------------
+ #2 [1] ADD R1, R0, R0     WB                                                          
+ #3 [2] ADD R2, R1, R0     RF   EX   MEM  WB                                           
+ #4 [3] ADD R3, R2, R1     ID   RF*  RF*  RF   EX   MEM  WB                            
+ #5 [4] STORE R3, 100      IF   ID   ID   ID   RF*  RF*  RF   EX   MEM  WB             
+ #6 [5] LOAD R4, 100            IF   IF   IF   ID   ID   ID   RF   EX   MEM  WB        
+ #7 [6] ADD R5, R4, R4                         IF   IF   IF   ID   RF*  RF*  RF   EX   
+ #8 [7] HALT                                                  IF   ID   ID   ID   RF   
+ #9 [8] <bad fetch>                                                IF   IF   IF   ID   
+ #10 [9] <bad fetch>                                                              IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 21  (latest)   RUNNING   next fetch PC=11
+======================================================================================
+     IF    ==>    ID    ==>    RF    ==>    EX    ==>   MEM    ...    WB    
+  #11 @10       #10 @9       #9 @8        #8 @7        #7 @6        bubble  
+  badfetch     badfetch     badfetch       HALT         ADD         (idle)  
+  FLUSHED      FLUSHED      FLUSHED        HALT                             
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #11 [10] <bad fetch>     | fetched this cycle; FLUSHED (after HALT); wrong-path fetch, squashed before it could fault
+  ID   | decode (micro-ROM)                 | #10 [9] <bad fetch>      | <- moved from IF; FLUSHED (after HALT); wrong-path fetch, squashed before it could fault
+  RF   | register read + RAW check          | #9 [8] <bad fetch>       | <- moved from ID; FLUSHED (after HALT); wrong-path fetch, squashed before it could fault
+  EX   | ALU / branch resolve               | #8 [7] HALT              | <- moved from RF; HALT: fetch stopped
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #7 [6] ADD R5, R4, R4    | <- moved from EX
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   HALT         #8 [7] HALT reached EX: fetch stopped, pipeline drains
+   PIPE FLUSH   discarded 3 younger instr(s): #11 [10] <bad fetch> (IF), #10 [9] <bad fetch> (ID), #9 [8] <bad fetch> (RF)
+
+ cycles=21  retired=6  CPI=3.50  data-stall cycles=10  flushed=3  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0019  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 10..21)   * = stalled in stage   X = flushed
+ instruction               10   11   12   13   14   15   16   17   18   19   20   21   
+ --------------------------------------------------------------------------------------
+ #3 [2] ADD R2, R1, R0     EX   MEM  WB                                                
+ #4 [3] ADD R3, R2, R1     RF*  RF*  RF   EX   MEM  WB                                 
+ #5 [4] STORE R3, 100      ID   ID   ID   RF*  RF*  RF   EX   MEM  WB                  
+ #6 [5] LOAD R4, 100       IF   IF   IF   ID   ID   ID   RF   EX   MEM  WB             
+ #7 [6] ADD R5, R4, R4                    IF   IF   IF   ID   RF*  RF*  RF   EX   MEM  
+ #8 [7] HALT                                             IF   ID   ID   ID   RF   EX   
+ #9 [8] <bad fetch>                                           IF   IF   IF   ID   RF   
+ #10 [9] <bad fetch>                                                         IF   ID   
+ #11 [10] <bad fetch>                                                             IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 22  (latest)   RUNNING   next fetch PC=11
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ==>   MEM    ==>    WB    
+   bubble       bubble       bubble       bubble       #8 @7        #7 @6   
+  (drain)      (flush)      (flush)      (flush)        HALT         ADD    
+                                                                    RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: slot of a flushed instruction
+  RF   | register read + RAW check          | -- bubble --             | bubble: slot of a flushed instruction
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: slot of a flushed instruction
+  MEM  | data memory (LOAD/STORE/POP/RET)   | #8 [7] HALT              | <- moved from EX
+  WB   | register write-back (retire)       | #7 [6] ADD R5, R4, R4    | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=22  retired=7  CPI=3.14  data-stall cycles=10  flushed=3  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0019  R5=0032* R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 11..22)   * = stalled in stage   X = flushed
+ instruction               11   12   13   14   15   16   17   18   19   20   21   22   
+ --------------------------------------------------------------------------------------
+ #3 [2] ADD R2, R1, R0     MEM  WB                                                     
+ #4 [3] ADD R3, R2, R1     RF*  RF   EX   MEM  WB                                      
+ #5 [4] STORE R3, 100      ID   ID   RF*  RF*  RF   EX   MEM  WB                       
+ #6 [5] LOAD R4, 100       IF   IF   ID   ID   ID   RF   EX   MEM  WB                  
+ #7 [6] ADD R5, R4, R4               IF   IF   IF   ID   RF*  RF*  RF   EX   MEM  WB   
+ #8 [7] HALT                                        IF   ID   ID   ID   RF   EX   MEM  
+ #9 [8] <bad fetch>                                      IF   IF   IF   ID   RF   X    
+ #10 [9] <bad fetch>                                                    IF   ID   X    
+ #11 [10] <bad fetch>                                                        IF   X    
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   6-stage: IF > ID > RF > EX > MEM > WB   forwarding OFF   t9_hazards.asm
+ CYCLE 23  (latest)   FINISHED: HALTED   next fetch PC=11
+======================================================================================
+     IF    ...    ID    ...    RF    ...    EX    ...   MEM    ==>    WB    
+   bubble       bubble       bubble       bubble       bubble       #8 @7   
+  (drain)      (drain)      (drain)      (drain)      (drain)        HALT   
+                                                                    RETIRE  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  ID   | decode (micro-ROM)                 | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  RF   | register read + RAW check          | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  EX   | ALU / branch resolve               | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  MEM  | data memory (LOAD/STORE/POP/RET)   | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  WB   | register write-back (retire)       | #8 [7] HALT              | <- moved from MEM; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=23  retired=8  CPI=2.88  data-stall cycles=10  flushed=3  control bubbles=0  branches taken=0
+ R0=0005  R1=000A  R2=000F  R3=0019  R4=0019  R5=0032  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 12..23)   * = stalled in stage   X = flushed
+ instruction               12   13   14   15   16   17   18   19   20   21   22   23   
+ --------------------------------------------------------------------------------------
+ #3 [2] ADD R2, R1, R0     WB                                                          
+ #4 [3] ADD R3, R2, R1     RF   EX   MEM  WB                                           
+ #5 [4] STORE R3, 100      ID   RF*  RF*  RF   EX   MEM  WB                            
+ #6 [5] LOAD R4, 100       IF   ID   ID   ID   RF   EX   MEM  WB                       
+ #7 [6] ADD R5, R4, R4          IF   IF   IF   ID   RF*  RF*  RF   EX   MEM  WB        
+ #8 [7] HALT                                   IF   ID   ID   ID   RF   EX   MEM  WB   
+ #9 [8] <bad fetch>                                 IF   IF   IF   ID   RF   X         
+ #10 [9] <bad fetch>                                               IF   ID   X         
+ #11 [10] <bad fetch>                                                   IF   X         
+
+ PROGRAM FINISHED: HALT retired after 23 cycles   (use 'prev' to review, 'reset' to restart, 'switch' to compare)
+pipeline(6)> exit
+Leaving pipeline visualizer (main CLI state unchanged).

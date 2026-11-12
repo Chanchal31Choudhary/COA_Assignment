@@ -1,0 +1,377 @@
+risc201> load tests/viz/branch_demo.asm
+Loaded 'tests/viz/branch_demo.asm': 4 words, 1 symbols. Machine reset.
+risc201> pipeline 4
+
+4-stage pipeline selected. Type 'help' for commands: next prev run pause reset status switch exit
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 0  (latest)   PAUSED   next fetch PC=0
+======================================================================================
+       IF      ...      ID      ...      EX      ...      WB      
+     bubble           bubble           bubble           bubble    
+     (fill)           (fill)           (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (nothing fetched yet -- type 'next' to clock the pipeline)
+
+ cycles=0  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+pipeline(4)> color off
+colour off
+pipeline(4)> unicode off
+unicode box/arrow glyphs off
+pipeline(4)> run 0
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 1  (latest)   RUNNING   next fetch PC=1
+======================================================================================
+       IF      ...      ID      ...      EX      ...      WB      
+     #1 @0            bubble           bubble           bubble    
+      LDI             (fill)           (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #1 [0] LDI R1, 2         | fetched this cycle
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=1  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..1)   * = stalled in stage   X = flushed
+ instruction               1    
+ -------------------------------
+ #1 [0] LDI R1, 2          IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 2  (latest)   RUNNING   next fetch PC=2
+======================================================================================
+       IF      ==>      ID      ...      EX      ...      WB      
+     #2 @1            #1 @0            bubble           bubble    
+      ADDI             LDI             (fill)           (fill)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #2 [1] ADDI R1, -1       | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #1 [0] LDI R1, 2         | <- moved from IF
+  EX   | ALU + memory access                | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=2  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..2)   * = stalled in stage   X = flushed
+ instruction               1    2    
+ ------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   
+ #2 [1] ADDI R1, -1             IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 3  (latest)   RUNNING   next fetch PC=3
+======================================================================================
+       IF      ==>      ID      ==>      EX      ...      WB      
+     #3 @2            #2 @1            #1 @0            bubble    
+      BNZ              ADDI             LDI             (fill)    
+                     FORWARD                                      
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #3 [2] BNZ R1, 1         | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #2 [1] ADDI R1, -1       | <- moved from IF; FORWARD R1 from #1 (EX result)
+  EX   | ALU + memory access                | #1 [0] LDI R1, 2         | <- moved from ID
+  WB   | register write-back (retire)       | -- bubble --             | bubble: pipeline filling (no instruction has reached this stage yet)
+
+ HAZARDS & EVENTS THIS CYCLE
+   FORWARDING   R1: #1 [0] LDI R1, 2 [EX result] <- bypassed to #2 [1] ADDI R1, -1 in ID  (stall avoided)
+
+ cycles=3  retired=0  CPI=0.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..3)   * = stalled in stage   X = flushed
+ instruction               1    2    3    
+ -----------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   
+ #2 [1] ADDI R1, -1             IF   ID   
+ #3 [2] BNZ R1, 1                    IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 4  (latest)   RUNNING   next fetch PC=4
+======================================================================================
+       IF      ==>      ID      ==>      EX      ==>      WB      
+     #4 @3            #3 @2            #2 @1            #1 @0     
+      HALT             BNZ              ADDI             LDI      
+                     FORWARD                            RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #4 [3] HALT              | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #3 [2] BNZ R1, 1         | <- moved from IF; FORWARD R1 from #2 (EX result)
+  EX   | ALU + memory access                | #2 [1] ADDI R1, -1       | <- moved from ID
+  WB   | register write-back (retire)       | #1 [0] LDI R1, 2         | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+   FORWARDING   R1: #2 [1] ADDI R1, -1 [EX result] <- bypassed to #3 [2] BNZ R1, 1 in ID  (stall avoided)
+
+ cycles=4  retired=1  CPI=4.00  data-stall cycles=0  flushed=0  control bubbles=0  branches taken=0
+ R0=0000  R1=0002* R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..4)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    
+ ----------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB   
+ #2 [1] ADDI R1, -1             IF   ID   EX   
+ #3 [2] BNZ R1, 1                    IF   ID   
+ #4 [3] HALT                              IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 5  (latest)   RUNNING   next fetch PC=1
+======================================================================================
+       IF      ==>      ID      ==>      EX      ==>      WB      
+     #5 @4            #4 @3            #3 @2            #2 @1     
+    badfetch           HALT             BNZ              ADDI     
+    FLUSHED          FLUSHED           TAKEN            RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #5 [4] <bad fetch>       | fetched this cycle; FLUSHED (control hazard); wrong-path fetch, squashed before it could fault
+  ID   | decode (micro-ROM) + register read | #4 [3] HALT              | <- moved from IF; FLUSHED (control hazard)
+  EX   | ALU + memory access                | #3 [2] BNZ R1, 1         | <- moved from ID; TAKEN -> PC=1, younger instrs flushed
+  WB   | register write-back (retire)       | #2 [1] ADDI R1, -1       | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+   CTRL HAZARD  #3 [2] BNZ R1, 1 resolved in EX: taken, PC := 1 (no branch prediction: wrong-path fetches are squashed)
+   PIPE FLUSH   discarded 2 younger instr(s): #5 [4] <bad fetch> (IF), #4 [3] HALT (ID)
+
+ cycles=5  retired=2  CPI=2.50  data-stall cycles=0  flushed=2  control bubbles=2  branches taken=1
+ R0=0000  R1=0001* R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..5)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    
+ ---------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB        
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB   
+ #3 [2] BNZ R1, 1                    IF   ID   EX   
+ #4 [3] HALT                              IF   ID   
+ #5 [4] <bad fetch>                            IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 6  (latest)   RUNNING   next fetch PC=2
+======================================================================================
+       IF      ...      ID      ...      EX      ==>      WB      
+     #6 @1            bubble           bubble           #3 @2     
+      ADDI           (flush)          (flush)            BNZ      
+                                                        RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #6 [1] ADDI R1, -1       | fetched this cycle
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: slot of a flushed instruction
+  EX   | ALU + memory access                | -- bubble --             | bubble: slot of a flushed instruction
+  WB   | register write-back (retire)       | #3 [2] BNZ R1, 1         | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=6  retired=3  CPI=2.00  data-stall cycles=0  flushed=2  control bubbles=2  branches taken=1
+ R0=0000  R1=0001  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..6)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    
+ --------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB             
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB        
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB   
+ #4 [3] HALT                              IF   ID   X    
+ #5 [4] <bad fetch>                            IF   X    
+ #6 [1] ADDI R1, -1                                 IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 7  (latest)   RUNNING   next fetch PC=3
+======================================================================================
+       IF      ==>      ID      ...      EX      ...      WB      
+     #7 @2            #6 @1            bubble           bubble    
+      BNZ              ADDI            (idle)           (idle)    
+                                                                  
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #7 [2] BNZ R1, 1         | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #6 [1] ADDI R1, -1       | <- moved from IF
+  EX   | ALU + memory access                | -- bubble --             | bubble
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=7  retired=3  CPI=2.33  data-stall cycles=0  flushed=2  control bubbles=2  branches taken=1
+ R0=0000  R1=0001  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..7)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    
+ -------------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB                  
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB             
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB        
+ #4 [3] HALT                              IF   ID   X         
+ #5 [4] <bad fetch>                            IF   X         
+ #6 [1] ADDI R1, -1                                 IF   ID   
+ #7 [2] BNZ R1, 1                                        IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 8  (latest)   RUNNING   next fetch PC=4
+======================================================================================
+       IF      ==>      ID      ==>      EX      ...      WB      
+     #8 @3            #7 @2            #6 @1            bubble    
+      HALT             BNZ              ADDI            (idle)    
+                     FORWARD                                      
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #8 [3] HALT              | fetched this cycle
+  ID   | decode (micro-ROM) + register read | #7 [2] BNZ R1, 1         | <- moved from IF; FORWARD R1 from #6 (EX result)
+  EX   | ALU + memory access                | #6 [1] ADDI R1, -1       | <- moved from ID
+  WB   | register write-back (retire)       | -- bubble --             | bubble
+
+ HAZARDS & EVENTS THIS CYCLE
+   FORWARDING   R1: #6 [1] ADDI R1, -1 [EX result] <- bypassed to #7 [2] BNZ R1, 1 in ID  (stall avoided)
+
+ cycles=8  retired=3  CPI=2.67  data-stall cycles=0  flushed=2  control bubbles=2  branches taken=1
+ R0=0000  R1=0001  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..8)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    
+ ------------------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB                       
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB                  
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB             
+ #4 [3] HALT                              IF   ID   X              
+ #5 [4] <bad fetch>                            IF   X              
+ #6 [1] ADDI R1, -1                                 IF   ID   EX   
+ #7 [2] BNZ R1, 1                                        IF   ID   
+ #8 [3] HALT                                                  IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 9  (latest)   RUNNING   next fetch PC=5
+======================================================================================
+       IF      ==>      ID      ==>      EX      ==>      WB      
+     #9 @4            #8 @3            #7 @2            #6 @1     
+    badfetch           HALT             BNZ              ADDI     
+                                                        RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #9 [4] <bad fetch>       | fetched this cycle; fetched from a non-code address (faults if it reaches EX)
+  ID   | decode (micro-ROM) + register read | #8 [3] HALT              | <- moved from IF
+  EX   | ALU + memory access                | #7 [2] BNZ R1, 1         | <- moved from ID; branch not taken (no penalty)
+  WB   | register write-back (retire)       | #6 [1] ADDI R1, -1       | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=9  retired=4  CPI=2.25  data-stall cycles=0  flushed=2  control bubbles=2  branches taken=1
+ R0=0000  R1=0000* R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..9)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    
+ -----------------------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB                            
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB                       
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB                  
+ #4 [3] HALT                              IF   ID   X                   
+ #5 [4] <bad fetch>                            IF   X                   
+ #6 [1] ADDI R1, -1                                 IF   ID   EX   WB   
+ #7 [2] BNZ R1, 1                                        IF   ID   EX   
+ #8 [3] HALT                                                  IF   ID   
+ #9 [4] <bad fetch>                                                IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 10  (latest)   RUNNING   next fetch PC=6
+======================================================================================
+       IF      ==>      ID      ==>      EX      ==>      WB      
+     #10 @5           #9 @4            #8 @3            #7 @2     
+    badfetch         badfetch           HALT             BNZ      
+    FLUSHED          FLUSHED            HALT            RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | #10 [5] <bad fetch>      | fetched this cycle; FLUSHED (after HALT); wrong-path fetch, squashed before it could fault
+  ID   | decode (micro-ROM) + register read | #9 [4] <bad fetch>       | <- moved from IF; FLUSHED (after HALT); wrong-path fetch, squashed before it could fault
+  EX   | ALU + memory access                | #8 [3] HALT              | <- moved from ID; HALT: fetch stopped
+  WB   | register write-back (retire)       | #7 [2] BNZ R1, 1         | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+   HALT         #8 [3] HALT reached EX: fetch stopped, pipeline drains
+   PIPE FLUSH   discarded 2 younger instr(s): #10 [5] <bad fetch> (IF), #9 [4] <bad fetch> (ID)
+
+ cycles=10  retired=5  CPI=2.00  data-stall cycles=0  flushed=4  control bubbles=2  branches taken=1
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..10)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    10   
+ ----------------------------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB                                 
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB                            
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB                       
+ #4 [3] HALT                              IF   ID   X                        
+ #5 [4] <bad fetch>                            IF   X                        
+ #6 [1] ADDI R1, -1                                 IF   ID   EX   WB        
+ #7 [2] BNZ R1, 1                                        IF   ID   EX   WB   
+ #8 [3] HALT                                                  IF   ID   EX   
+ #9 [4] <bad fetch>                                                IF   ID   
+ #10 [5] <bad fetch>                                                    IF   
+======================================================================================
+ RISC201 PIPELINE VISUALIZER   4-stage: IF > ID > EX > WB   forwarding ON   branch_demo.asm
+ CYCLE 11  (latest)   FINISHED: HALTED   next fetch PC=6
+======================================================================================
+       IF      ...      ID      ...      EX      ==>      WB      
+     bubble           bubble           bubble           #8 @3     
+    (drain)          (flush)          (flush)            HALT     
+                                                        RETIRE    
+
+ Stage | Role                               | Instruction              | Status / movement
+ ------+------------------------------------+--------------------------+----------------------------------------
+  IF   | instruction fetch                  | -- bubble --             | bubble: pipeline draining (instruction fetch has stopped)
+  ID   | decode (micro-ROM) + register read | -- bubble --             | bubble: slot of a flushed instruction
+  EX   | ALU + memory access                | -- bubble --             | bubble: slot of a flushed instruction
+  WB   | register write-back (retire)       | #8 [3] HALT              | <- moved from EX; retires (commits)
+
+ HAZARDS & EVENTS THIS CYCLE
+  (no hazards this cycle)
+
+ cycles=11  retired=6  CPI=1.83  data-stall cycles=0  flushed=4  control bubbles=2  branches taken=1
+ R0=0000  R1=0000  R2=0000  R3=0000  R4=0000  R5=0000  R6=0000  SP=0100    (* = written this cycle)
+
+ PIPELINE CHART  (cycles 1..11)   * = stalled in stage   X = flushed
+ instruction               1    2    3    4    5    6    7    8    9    10   11   
+ ---------------------------------------------------------------------------------
+ #1 [0] LDI R1, 2          IF   ID   EX   WB                                      
+ #2 [1] ADDI R1, -1             IF   ID   EX   WB                                 
+ #3 [2] BNZ R1, 1                    IF   ID   EX   WB                            
+ #4 [3] HALT                              IF   ID   X                             
+ #5 [4] <bad fetch>                            IF   X                             
+ #6 [1] ADDI R1, -1                                 IF   ID   EX   WB             
+ #7 [2] BNZ R1, 1                                        IF   ID   EX   WB        
+ #8 [3] HALT                                                  IF   ID   EX   WB   
+ #9 [4] <bad fetch>                                                IF   ID   X    
+ #10 [5] <bad fetch>                                                    IF   X    
+
+ PROGRAM FINISHED: HALT retired after 11 cycles   (use 'prev' to review, 'reset' to restart, 'switch' to compare)
+pipeline(4)> exit
+Leaving pipeline visualizer (main CLI state unchanged).

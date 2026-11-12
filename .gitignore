@@ -1,0 +1,4 @@
+# Build products
+/risc201
+/src/*.o
+/fp16_demo

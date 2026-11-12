@@ -1,0 +1,3 @@
+STATUS: EXCEPTION StackCorruption store to 0xC8 is inside the stack segment but below SP=0xFF (unallocated stack)  [at PC=0x02: STORE R0, 200]
+REGS: R0=0005 R1=0000 R2=0000 R3=0000 R4=0000 R5=0000 R6=0000 R7=00FF
+MEM[100..109]: 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000

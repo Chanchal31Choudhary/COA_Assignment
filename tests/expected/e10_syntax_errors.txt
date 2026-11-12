@@ -1,0 +1,6 @@
+STATUS: ASSEMBLY_ERROR
+  line 2: immediate 300 out of range -128..127
+  line 3: unknown mnemonic 'FOO'
+  line 4: ADD expects 3 operand(s)
+  line 5: undefined symbol 'nowhere'
+  line 7: duplicate label 'dup'
